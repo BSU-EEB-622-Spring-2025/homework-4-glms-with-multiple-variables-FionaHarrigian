@@ -46,6 +46,11 @@ marginaleffects::comparisons(mistle.mod, condition="Treatment", newdata=data.fra
 #excellent job at predicting the number of seedlings and that they might be very
 #different when the tree is unparasitized versus parasitized.
 
+## ASW: yeah, I'd say its moderate fit, but the seedling values do range from 0 to >2000.
+
+## ASW: nice interpretation! 
+## ASW:  I'm going to grade the rest based on interpretation of the poisson glm you selected, but try a test for overdispersion to test if the poisson is an appropriate choice here. A negative binomial glm may be more appropriate.
+
 ## 1c) During the course of this study, 2012 was an atypically
 #rainy year, compared to 2011. Fit an additional glm that quantifies how
 #the effect of mistletoe differs between the two years in this study.
@@ -67,6 +72,11 @@ predictions(yearmistle.mod, newdata=data.frame(Year=c("2011", "2012"),
 #and parasitized trees were more likely to have larger areas of their canopy open,
 #perhaps the rain could reach the seedlings recruited to these parasitized trees
 #much more easily, meaning a much higher density of seedlings.
+
+## ASW: based on how the question is phrased, an interaction between Year and Treatment (which is coded as Year*Treatment) may better reflect the effect we are interested in (whether the treatment effect differs between years). The "Year" coefficient on its own just tells us if the seedling counts differed between years. Because of the link function, the effect of Year is nonlinear, but this model hasn't specified an interaction.
+
+
+## ASW: nice work, Fiona! 25/30
 
 
 ## Question 2:Questions 2 uses the “treemortality” dataset in this repository. Forest
@@ -118,6 +128,8 @@ summary(thin.mod)
 performance::mae(thin.mod)
 #0.4080684
 
+## ASW: AUC/ROC may be a better choice for capturing fit in this binomial glm.
+
 #plot of effects of thinning, not thinning, and parameter estimates
 plot_predictions(thin.mod, condition="thinning")
 predictions(thin.mod, newdata=data.frame(thinning=c(0,1)))
@@ -136,6 +148,9 @@ marginaleffects::comparisons(thin.mod, condition="thinning", newdata=data.frame(
 #probabilities would be "off" by 0.4 when the probabilities for unthinned is 0.730
 #and thinned is 0.297.
 
+
+## ASW: great interpretation! and lovely use of the "comparisons" function! See my comment about using ROC/AUC instead of MAE (since the response is binary)
+
 ## 2b)The researchers explicitly considered the potential for
 #confounding relationships related to tree size in their design and
 #randomized their post-fire sampling by tree size. Given this
@@ -153,6 +168,9 @@ predictions(thinsize.mod, newdata = data.frame(thinning=1, treesize=c(1, 19.9)))
 #been thinned or not. When the range of tree sizes are used to predict probability
 #of mortality, larger trees with diameters about 19 cm in thinned areas had mortality
 #probabilities half of small trees with diameters about 1 cm.
+
+
+## ASW: if they completely randomized thinning treatments in relationship to tree size, it will not bias the estimate of thinning's effect. You can see this dynamic in your models above. The models estimate a coefficient for thinning of -1.8559, regardless of whether tree size is included. Including tree size is not necessary (though they could add this variable if they are interested in exploring effects of tree size too!)
 
 ## 2c) The researchers submit their analysis for peer review,
 #and one of the reviewers raises some concerns about the sampling
@@ -210,3 +228,11 @@ performance::mae(thinslopedist.mod) #0.161522-better fit than in 2a
 #the effect of thinning on tree mortality. Interestingly, the fit of the model
 #is better too, with a MAE of 0.16 compared to 0.4. This suggests that adding
 #these parameters was quite impactful. 
+
+
+## ASW: Exactly! The key thing here is that slope and distance from roads are biasing the effect of thinning in the first model, making it appear more effective than it is because of the fact that thinning treatments are more likely to occur in locations where fire severity is already lower (closer to roads, on shallower slopes). The predicted effect of thinning in the first model is a decrease in mortality from 73% to 29%, but in the second model, this effect decreases (Mortality decreases from 54% to 29%). See my comment above about using another fit metric (rather than MAE) for binomial glms.
+
+## 17/20
+
+## ASW: Nice work! 43/50
+
